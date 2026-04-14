@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Аудит процессов — Маркетинг</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #111114;
@@ -48,7 +48,7 @@ body::before{
 
 /* TOPBAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;}
-.topbar-logo{font-family:'Instrument Serif',serif;font-size:18px;color:#A8A49C;}
+.topbar-logo{font-family:'Sora',sans-serif;font-size:15px;font-weight:500;color:#A8A49C;}
 .topbar-logo span{color:var(--ink);}
 .topbar-pill{
   font-size:12px;font-weight:500;letter-spacing:0.08em;
@@ -82,8 +82,8 @@ body::before{
 }
 .eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--ca);box-shadow:0 0 8px var(--ca);}
 .s-title{
-  font-family:'Instrument Serif',serif;font-size:38px;line-height:1.1;
-  color:var(--ink);margin-bottom:10px;letter-spacing:-0.03em;
+  font-family:'Sora',sans-serif;font-size:32px;line-height:1.15;
+  color:var(--ink);margin-bottom:10px;letter-spacing:-0.02em;font-weight:600;
 }
 .s-sub{font-size:15px;color:#C8C4BC;line-height:1.65;margin-bottom:44px;font-weight:300;}
 
@@ -225,7 +225,7 @@ textarea:focus,input:focus{border-color:var(--cab);box-shadow:0 0 0 3px var(--ca
   margin:0 auto 28px;
 }
 .done-ring svg{width:34px;height:34px;}
-.done-title{font-family:'Instrument Serif',serif;font-size:42px;margin-bottom:14px;letter-spacing:-0.03em;}
+.done-title{font-family:'Sora',sans-serif;font-size:36px;margin-bottom:14px;letter-spacing:-0.02em;font-weight:600;}
 .done-sub{font-size:15px;color:#C8C4BC;line-height:1.7;font-weight:300;max-width:420px;margin:0 auto;}
 </style>
 </head>
@@ -510,13 +510,16 @@ textarea:focus,input:focus{border-color:var(--cab);box-shadow:0 0 0 3px var(--ca
       <div class="q-hint">Выбери всё что сэкономило бы тебе время или убрало головную боль</div>
       <div class="opts">
         <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Создал задачу → она сама назначилась нужному человеку без моего участия</div></div>
-        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Задача застряла 3 дня → я получил уведомление в Slack автоматически</div></div>
-        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Запускаю новую кампанию → Jira сама создаёт все нужные подзадачи по шаблону</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Задача не двигается N дней → я получаю уведомление автоматически, без ручного контроля</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Начинаю типовой процесс → Jira сама создаёт все нужные подзадачи по шаблону</div></div>
         <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Открываю доску → сразу вижу у кого перегруз и что блокирует команду</div></div>
-        <div class="opt chk" onclick="tog(this)"><div class="opt-txt">Дизайн сделал задачу → смежная команда получила уведомление и взяла в работу без моего пинга</div></div>
         <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Каждый в команде видит только свои задачи с чёткими статусами — без лишнего шума</div></div>
-        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Задача пришла от другой команды → автоматически попала в наш бэклог с нужными полями</div></div>
-        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Вижу в одном месте все задачи которые ждут моего решения или аппрува</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Пришёл запрос от другой команды → задача автоматически появилась в нашем бэклоге</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Вижу в одном месте всё что ждёт моего решения или аппрува</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Закрыл задачу → смежная команда получила уведомление автоматически</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <input type="text" placeholder="Свой сценарий — опиши своими словами...">
       </div>
     </div>
 
