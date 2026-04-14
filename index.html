@@ -645,8 +645,8 @@ function collectAnswers(){
   function getSelText(sId){
     return Array.from(document.querySelectorAll('#'+sId+' .opt:not(.chk).sel .opt-txt')).map(o=>o.textContent.trim());
   }
-  function getCheckedText(sId){
-    return Array.from(document.querySelectorAll('#'+sId+' .opt.chk.sel .opt-txt')).map(o=>o.textContent.trim()).join('; ');
+  function getCheckedByGroup(groupSelector){
+    return Array.from(document.querySelectorAll(groupSelector+' .opt.chk.sel .opt-txt')).map(o=>o.textContent.trim()).join('; ');
   }
   function getTA(idx){
     const a=document.querySelectorAll('textarea');
@@ -661,31 +661,43 @@ function collectAnswers(){
   const s2sel=getSelText('s2');
   const s4sel=getSelText('s4');
   const s5sel=getSelText('s5');
+  const s6sel=getSelText('s6');
+
+  // s5 has multiple checkbox groups — grab by order of .opts groups
+  const s5optsGroups = document.querySelectorAll('#s5 .opts');
+  const jiraSetup    = s5optsGroups[1] ? Array.from(s5optsGroups[1].querySelectorAll('.opt.chk.sel .opt-txt')).map(o=>o.textContent.trim()).join('; ') : '';
+  const automations  = s5optsGroups[3] ? Array.from(s5optsGroups[3].querySelectorAll('.opt.chk.sel .opt-txt')).map(o=>o.textContent.trim()).join('; ') : '';
+  const scenarios    = s5optsGroups[4] ? Array.from(s5optsGroups[4].querySelectorAll('.opt.chk.sel .opt-txt')).map(o=>o.textContent.trim()).join('; ') : '';
 
   return {
     team,
-    teamSize:       s1sel[0]||'',
-    managerTime:    s1sel[1]||'',
-    taskSources:    getCheckedText('s2'),
-    visibility:     s2sel[0]||'',
-    priorities:     s2sel[1]||'',
-    taskDrop:       s2sel[2]||'',
-    topPains:       selectedPains.join(' → '),
-    painExample:    getTA(0),
-    handoff:        s4sel[0]||'',
-    approvalTime:   s4sel[1]||'',
-    frictions:      getTA(1),
+    teamSize:           s1sel[0]||'',
+    managerTime:        s1sel[1]||'',
+    taskSources:        getCheckedByGroup('#s2'),
+    visibility:         s2sel[0]||'',
+    priorities:         s2sel[1]||'',
+    taskDrop:           s2sel[2]||'',
+    topPains:           selectedPains.join(' → '),
+    painExample:        getTA(0),
+    handoff:            s4sel[0]||'',
+    approvalTime:       s4sel[1]||'',
+    frictions:          getTA(1),
     repeatingProcesses: getTA(2),
-    jiraUsage:      s5sel[0]||'',
-    idealBoard:     getTA(3),
-    automations:    getCheckedText('s5'),
-    doNotTouch:     getTA(4),
-    successCriteria:getTA(5),
-    painScore:      getScale('sc1'),
-    failedAttempts: getTA(6),
-    idealMonday:    getTA(7),
-    fixFirst:       getTA(8),
-    extra:          getTA(9),
+    jiraUsage:          s5sel[0]||'',
+    coverageLevel:      s5sel[1]||'',
+    coverageGaps:       getTA(3),
+    jiraSetup:          jiraSetup,
+    idealBoard:         getTA(4),
+    automations:        automations,
+    scenarios:          scenarios,
+    doNotTouch:         getTA(5),
+    jiraNeed:           s6sel[0]||'',
+    successCriteria:    getTA(6),
+    painScore:          getScale('sc1'),
+    failedAttempts:     getTA(7),
+    idealMonday:        getTA(8),
+    fixFirst:           getTA(9),
+    extra:              getTA(10),
   };
 }
 
