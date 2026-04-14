@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Аудит процессов — Маркетинг</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #111114;
+  --surface: #1C1C21;
+  --surface2: #242429;
+  --border: rgba(255,255,255,0.09);
+  --border-h: rgba(255,255,255,0.18);
+  --ink: #F2EFE8;
+  --ink-mid: #E8E4DC;
+  --ink-soft: #BDB9B0;
+  --ink-faint: #606068;
+
+  /* block accent colors */
+  --c1: #7B6EF6; --c1d: rgba(123,110,246,0.15); --c1b: rgba(123,110,246,0.4);
+  --c2: #F97316; --c2d: rgba(249,115,22,0.13);  --c2b: rgba(249,115,22,0.4);
+  --c3: #EC4899; --c3d: rgba(236,72,153,0.13);  --c3b: rgba(236,72,153,0.4);
+  --c4: #10B981; --c4d: rgba(16,185,129,0.12);  --c4b: rgba(16,185,129,0.4);
+  --c5: #F59E0B; --c5d: rgba(245,158,11,0.12);  --c5b: rgba(245,158,11,0.4);
+  --c6: #06B6D4; --c6d: rgba(6,182,212,0.12);   --c6b: rgba(6,182,212,0.4);
+  --c7: #A855F7; --c7d: rgba(168,85,247,0.13);  --c7b: rgba(168,85,247,0.4);
+
+  --ca: var(--c1); --cad: var(--c1d); --cab: var(--c1b);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:48px 16px 100px;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(123,110,246,0.08),transparent);
+  pointer-events:none;z-index:0;
+}
+.shell{width:100%;max-width:600px;position:relative;z-index:1;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;}
+.topbar-logo{font-family:'Instrument Serif',serif;font-size:18px;color:#A8A49C;}
+.topbar-logo span{color:var(--ink);}
+.topbar-pill{
+  font-size:12px;font-weight:500;letter-spacing:0.08em;
+  background:var(--surface);border:1px solid var(--border);
+  padding:5px 14px;border-radius:100px;color:#A8A49C;
+  font-variant-numeric:tabular-nums;
+}
+.topbar-pill b{color:var(--ca);}
+
+/* PROGRESS */
+.progress-track{height:2px;background:var(--surface2);margin-bottom:52px;border-radius:2px;overflow:visible;position:relative;}
+.progress-fill{
+  height:100%;border-radius:2px;
+  transition:width 0.55s cubic-bezier(0.4,0,0.2,1);
+  position:relative;
+}
+.progress-fill::after{
+  content:'';position:absolute;right:-4px;top:-4px;
+  width:10px;height:10px;border-radius:50%;
+  box-shadow:0 0 12px currentColor;
+}
+
+/* SECTION */
+.section{display:none;}
+.section.active{display:block;animation:rise 0.44s cubic-bezier(0.16,1,0.3,1) both;}
+@keyframes rise{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+.eyebrow{
+  font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--ca);margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--ca);box-shadow:0 0 8px var(--ca);}
+.s-title{
+  font-family:'Instrument Serif',serif;font-size:38px;line-height:1.1;
+  color:var(--ink);margin-bottom:10px;letter-spacing:-0.03em;
+}
+.s-sub{font-size:15px;color:#C8C4BC;line-height:1.65;margin-bottom:44px;font-weight:300;}
+
+/* QUESTION */
+.q{margin-bottom:32px;}
+.q-label{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:6px;line-height:1.45;}
+.q-hint{font-size:12px;color:#A8A49C;margin-bottom:11px;line-height:1.5;font-weight:300;}
+
+/* TEAM GRID */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:7px;}
+.tc{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:13px 13px 11px;cursor:pointer;text-align:left;width:100%;
+  transition:all 0.18s;position:relative;overflow:hidden;
+}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tc-color,var(--ca));opacity:0;transition:opacity 0.2s;}
+.tc:hover{border-color:var(--border-h);background:var(--surface2);transform:translateY(-2px);}
+.tc.sel{border-color:var(--tc-color,var(--ca));background:var(--surface2);transform:translateY(-2px);}
+.tc.sel::before{opacity:1;}
+.tc-name{display:block;font-size:13px;font-weight:500;color:#D4D0C8;margin-bottom:2px;line-height:1.3;transition:color 0.18s;}
+.tc.sel .tc-name{color:var(--tc-color,var(--ca));}
+.tc-sub{display:block;font-size:11px;color:#A8A49C;font-weight:300;line-height:1.4;transition:color 0.18s;}
+.tc.sel .tc-sub{color:#C8C4BC;}
+
+/* OPTIONS */
+.opts{display:flex;flex-direction:column;gap:7px;}
+.opt{
+  display:flex;align-items:flex-start;gap:12px;padding:13px 15px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  cursor:pointer;transition:all 0.17s;
+}
+.opt:hover{border-color:var(--border-h);background:var(--surface2);}
+.opt.sel{border-color:var(--cab);background:var(--cad);}
+.dot{
+  width:18px;height:18px;border-radius:50%;border:1.5px solid var(--ink-faint);
+  flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.17s;
+}
+.opt.chk .dot{border-radius:5px;}
+.opt.sel .dot{border-color:var(--ca);background:var(--ca);}
+.opt.sel .dot::after{content:'';display:block;width:5px;height:5px;border-radius:50%;background:#fff;}
+.opt.chk.sel .dot::after{
+  width:9px;height:6px;border-radius:0;background:none;
+  border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;
+  transform:rotate(-45deg) translate(1px,-1px);
+}
+.opt-txt{font-size:14px;color:#D4D0C8;line-height:1.45;transition:color 0.17s;}
+.opt.sel .opt-txt{color:var(--ink);}
+
+/* RANK */
+.rank-list{display:flex;flex-direction:column;gap:7px;}
+.rank-item{
+  display:flex;align-items:center;gap:12px;padding:12px 15px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  cursor:grab;user-select:none;transition:all 0.17s;
+}
+.rank-item:active{cursor:grabbing;}
+.rank-item.dragging{opacity:0.35;}
+.rank-item.drag-over{border-color:var(--cab);box-shadow:0 0 0 1px var(--cab);}
+.rank-num{
+  min-width:26px;height:26px;border-radius:7px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:12px;font-weight:500;color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.17s;
+}
+.rank-item[data-pos="1"] .rank-num{background:var(--cad);border-color:var(--cab);color:var(--ca);}
+.rank-txt{font-size:13px;color:#E8E4DC;line-height:1.4;flex:1;}
+.rank-handle{color:var(--ink-faint);font-size:14px;letter-spacing:1px;flex-shrink:0;}
+
+/* SCALE */
+.scale-btns{display:flex;gap:7px;margin-top:4px;}
+.sbtn{
+  flex:1;height:48px;border:1px solid var(--border);border-radius:12px;
+  background:var(--surface);font-size:15px;font-weight:400;color:#C8C4BC;
+  cursor:pointer;transition:all 0.17s;font-family:'DM Sans',sans-serif;
+}
+.sbtn:hover{border-color:var(--border-h);color:var(--ink);background:var(--surface2);}
+.sbtn.sel{border-color:var(--cab);background:var(--ca);color:#fff;box-shadow:0 0 20px color-mix(in srgb,var(--ca) 40%,transparent);}
+.scale-labels{display:flex;justify-content:space-between;margin-top:7px;font-size:11px;color:#A8A49C;font-weight:300;}
+
+/* TEXTAREA / INPUT */
+textarea,input[type=text]{
+  width:100%;padding:13px 15px;font-size:14px;
+  font-family:'DM Sans',sans-serif;font-weight:300;color:var(--ink);
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  outline:none;transition:border-color 0.17s,box-shadow 0.17s;line-height:1.65;
+}
+textarea{resize:vertical;min-height:90px;}
+textarea::placeholder,input::placeholder{color:#6A6A74;}
+textarea:focus,input:focus{border-color:var(--cab);box-shadow:0 0 0 3px var(--cad);}
+
+/* CUSTOM TEAM */
+.custom-trigger{
+  display:flex;align-items:center;gap:10px;margin-top:7px;
+  padding:11px 14px;border:1px dashed var(--ink-faint);border-radius:12px;
+  cursor:pointer;transition:all 0.18s;background:transparent;width:100%;text-align:left;
+}
+.custom-trigger:hover{border-color:var(--border-h);background:var(--surface);}
+.custom-trigger.sel{border-color:var(--cab);background:var(--cad);border-style:solid;}
+.ci-icon{
+  width:20px;height:20px;border-radius:50%;border:1px solid var(--ink-faint);
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  color:var(--ink-faint);flex-shrink:0;line-height:1;transition:all 0.18s;
+}
+.custom-trigger.sel .ci-icon{border-color:var(--ca);color:var(--ca);}
+.ct-txt{font-size:13px;color:var(--ink-soft);}
+.custom-trigger.sel .ct-txt{color:var(--ca);}
+.ci-wrap{display:none;margin-top:7px;}
+.ci-wrap.show{display:block;animation:rise 0.25s ease both;}
+
+/* MB EXTRA */
+.mb-extra{display:none;margin-top:10px;padding:15px;border-radius:12px;}
+.mb-extra.show{display:block;animation:rise 0.3s ease both;}
+.mb-lbl{font-size:11px;font-weight:500;margin-bottom:10px;letter-spacing:0.08em;text-transform:uppercase;}
+
+/* NAV */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:52px;gap:12px;}
+.btn-back{
+  padding:12px 24px;border:1px solid var(--border);border-radius:100px;
+  background:transparent;font-size:14px;font-family:'DM Sans',sans-serif;
+  color:#A8A49C;cursor:pointer;transition:all 0.17s;
+}
+.btn-back:hover{border-color:var(--border-h);color:var(--ink);}
+.btn-back:disabled{opacity:0.2;cursor:default;}
+.btn-next{
+  padding:13px 36px;border:none;border-radius:100px;
+  background:var(--ca);font-size:14px;font-weight:500;
+  font-family:'DM Sans',sans-serif;color:#fff;cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-next:hover{filter:brightness(1.15);transform:translateY(-1px);}
+.btn-next:active{transform:translateY(0);}
+
+/* DONE */
+.done-screen{display:none;text-align:center;padding:64px 0 20px;animation:rise 0.5s ease both;}
+.done-ring{
+  width:84px;height:84px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 28px;
+}
+.done-ring svg{width:34px;height:34px;}
+.done-title{font-family:'Instrument Serif',serif;font-size:42px;margin-bottom:14px;letter-spacing:-0.03em;}
+.done-sub{font-size:15px;color:#C8C4BC;line-height:1.7;font-weight:300;max-width:420px;margin:0 auto;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar">
+    <div class="topbar-logo">Маркетинг · <span>Аудит процессов</span></div>
+    <div class="topbar-pill"><b id="cur-num">01</b> / 07</div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="pfill" style="width:14%;background:var(--c1);color:var(--c1);"></div>
+  </div>
+
+  <!-- WELCOME NOTE -->
+  <div id="welcome-note" style="margin-bottom:32px;padding:18px 20px;background:rgba(123,110,246,0.08);border:1px solid rgba(123,110,246,0.25);border-radius:14px;">
+    <div style="font-size:13px;font-weight:500;color:#A78BFA;margin-bottom:8px;letter-spacing:0.04em;">Зачем этот опрос</div>
+    <p style="font-size:14px;color:#C8C4BC;line-height:1.7;margin-bottom:12px;font-weight:300;">Хочу понять как устроена работа в каждой команде — и помочь сделать её проще через Jira. Опрос помогает выявить узкие места, но это не единственный способ.</p>
+    <p style="font-size:14px;color:#C8C4BC;line-height:1.7;font-weight:300;">Если есть конкретный запрос или идея — не жди опроса, приходи напрямую:<br>
+    <span style="color:#A78BFA;">💬 Slack</span> <span style="color:#C8C4BC;">→ напиши <b style="color:#A78BFA;">@Viktor Smirnov</b>, отвечу быстро</span><br>
+    <span style="color:#A78BFA;">📅 Встреча</span> <span style="color:#C8C4BC;">→ напиши <b style="color:#A78BFA;">@Viktor Smirnov</b> в Slack, договоримся</span>
+    </p>
+  </div>
+
+  <!-- ══ S1 КОМАНДА ══ -->
+  <div class="section active" id="s1">
+    <div class="eyebrow"><div class="eyebrow-dot"></div>Блок 01</div>
+    <h1 class="s-title">Твоя команда</h1>
+    <p class="s-sub">Выбери направление и расскажи о масштабе — это влияет на то, какой тип процессов нужен.</p>
+
+    <div class="q">
+      <div class="q-label">Направление</div>
+      <div class="team-grid" id="team-grid">
+        <button class="tc" style="--tc-color:#F97316" onclick="pickTeam(this,'Mediabuying')"><span class="tc-name">Mediabuying</span><span class="tc-sub">Google, FB, TikTok, In-app</span></button>
+        <button class="tc" style="--tc-color:#F59E0B" onclick="pickTeam(this,'CPA')"><span class="tc-name">CPA</span><span class="tc-sub">Cost per action</span></button>
+        <button class="tc" style="--tc-color:#10B981" onclick="pickTeam(this,'Affiliate')"><span class="tc-name">Affiliate</span><span class="tc-sub">Партнёрские программы</span></button>
+        <button class="tc" style="--tc-color:#EC4899" onclick="pickTeam(this,'Influence')"><span class="tc-name">Influence</span><span class="tc-sub">Инфлюенсеры</span></button>
+        <button class="tc" style="--tc-color:#06B6D4" onclick="pickTeam(this,'SMM')"><span class="tc-name">SMM</span><span class="tc-sub">Соцсети</span></button>
+        <button class="tc" style="--tc-color:#7B6EF6" onclick="pickTeam(this,'SEO')"><span class="tc-name">SEO</span><span class="tc-sub">Поисковая органика</span></button>
+        <button class="tc" style="--tc-color:#F97316" onclick="pickTeam(this,'Community')"><span class="tc-name">Community</span><span class="tc-sub">Комьюнити</span></button>
+        <button class="tc" style="--tc-color:#A855F7" onclick="pickTeam(this,'ASO')"><span class="tc-name">ASO</span><span class="tc-sub">App store</span></button>
+        <button class="tc" style="--tc-color:#10B981" onclick="pickTeam(this,'REM')"><span class="tc-name">REM</span><span class="tc-sub">Email, push, retention</span></button>
+        <button class="tc" style="--tc-color:#EC4899" onclick="pickTeam(this,'Моушен дизайн')"><span class="tc-name">Моушен дизайн</span><span class="tc-sub">Анимация и motion</span></button>
+        <button class="tc" style="--tc-color:#06B6D4" onclick="pickTeam(this,'Дизайн')"><span class="tc-name">Дизайн</span><span class="tc-sub">Визуалы и графика</span></button>
+        <button class="tc" style="--tc-color:#F59E0B" onclick="pickTeam(this,'Креатив и копирайтинг')"><span class="tc-name">Креатив и копирайтинг</span><span class="tc-sub">Тексты и идеи</span></button>
+        <button class="tc" style="--tc-color:#7B6EF6" onclick="pickTeam(this,'Локализация')"><span class="tc-name">Локализация</span><span class="tc-sub">Перевод и адаптация</span></button>
+        <button class="tc" style="--tc-color:#A855F7" onclick="pickTeam(this,'Analytics')"><span class="tc-name">Analytics</span><span class="tc-sub">Данные и метрики</span></button>
+        <button class="tc" style="--tc-color:#10B981" onclick="pickTeam(this,'PM')"><span class="tc-name">PM</span><span class="tc-sub">Проектное управление</span></button>
+      </div>
+      <div class="mb-extra" id="mb-extra" style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.35);">
+        <div class="mb-lbl" style="color:#F97316;">Какие каналы ведёт команда?</div>
+        <div class="opts">
+          <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Google Ads</div></div>
+          <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Facebook / Meta</div></div>
+          <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">TikTok</div></div>
+          <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">In-app / DSP / Programmatic</div></div>
+          <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Другие каналы</div></div>
+        </div>
+      </div>
+      <button class="custom-trigger" id="ct" onclick="toggleCustom()">
+        <div class="ci-icon">+</div>
+        <span class="ct-txt">Моей команды нет в списке — добавить вручную</span>
+      </button>
+      <div class="ci-wrap" id="ci-wrap">
+        <input type="text" placeholder="Название команды..." oninput="onCI()">
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Сколько человек в команде?</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'sz')"><div class="dot"></div><div class="opt-txt">1–3 человека</div></div>
+        <div class="opt" onclick="sel(this,'sz')"><div class="dot"></div><div class="opt-txt">4–7 человек</div></div>
+        <div class="opt" onclick="sel(this,'sz')"><div class="dot"></div><div class="opt-txt">8–15 человек</div></div>
+        <div class="opt" onclick="sel(this,'sz')"><div class="dot"></div><div class="opt-txt">15+ человек</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Сколько времени в неделю ты тратишь на ручное управление командой?</div>
+      <div class="q-hint">Статусы, напоминания, уточнения, расстановка приоритетов — всё что должна делать система, но делаешь ты</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'mtime')"><div class="dot"></div><div class="opt-txt">Меньше 2 часов — почти не трачу</div></div>
+        <div class="opt" onclick="sel(this,'mtime')"><div class="dot"></div><div class="opt-txt">2–5 часов — заметно, но терпимо</div></div>
+        <div class="opt" onclick="sel(this,'mtime')"><div class="dot"></div><div class="opt-txt">5–10 часов — это мешает нормально работать</div></div>
+        <div class="opt" onclick="sel(this,'mtime')"><div class="dot"></div><div class="opt-txt">Больше 10 часов — это основная часть моей работы</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S2 КАК УСТРОЕНА РАБОТА ══ -->
+  <div class="section" id="s2">
+    <div class="eyebrow"><div class="eyebrow-dot"></div>Блок 02</div>
+    <h1 class="s-title">Как устроена работа</h1>
+    <p class="s-sub">Как задачи попадают в команду, движутся и как ты держишь руку на пульсе.</p>
+
+    <div class="q">
+      <div class="q-label">Откуда приходят задачи в твою команду?</div>
+      <div class="q-hint">Можно выбрать несколько</div>
+      <div class="opts">
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">От меня как лида — я ставлю задачи сам</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">От других команд через Slack / переписку</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Из общего бэклога в Jira</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">От руководства — напрямую, минуя меня</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Нет единого источника — приходят отовсюду</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Как ты понимаешь текущий статус задач в команде?</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'vis')"><div class="dot"></div><div class="opt-txt">Вижу в Jira / трекере — не нужно спрашивать</div></div>
+        <div class="opt" onclick="sel(this,'vis')"><div class="dot"></div><div class="opt-txt">Узнаю на еженедельных синках</div></div>
+        <div class="opt" onclick="sel(this,'vis')"><div class="dot"></div><div class="opt-txt">Спрашиваю у людей напрямую когда нужно</div></div>
+        <div class="opt" onclick="sel(this,'vis')"><div class="dot"></div><div class="opt-txt">Плохо понимаю — это проблема</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Как сейчас расставляются приоритеты в команде?</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'prio')"><div class="dot"></div><div class="opt-txt">Есть чёткие правила — команда знает что делать первым</div></div>
+        <div class="opt" onclick="sel(this,'prio')"><div class="dot"></div><div class="opt-txt">Я расставляю приоритеты вручную каждый раз</div></div>
+        <div class="opt" onclick="sel(this,'prio')"><div class="dot"></div><div class="opt-txt">Команда ориентируется сама — результаты разные</div></div>
+        <div class="opt" onclick="sel(this,'prio')"><div class="dot"></div><div class="opt-txt">Приоритеты меняются так часто что система не работает</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Как часто задачи между командами теряются или застревают?</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'drop')"><div class="dot"></div><div class="opt-txt">Редко — есть понятные процессы передачи</div></div>
+        <div class="opt" onclick="sel(this,'drop')"><div class="dot"></div><div class="opt-txt">Иногда — приходится искать кто за что отвечает</div></div>
+        <div class="opt" onclick="sel(this,'drop')"><div class="dot"></div><div class="opt-txt">Часто — это одна из главных проблем</div></div>
+        <div class="opt" onclick="sel(this,'drop')"><div class="dot"></div><div class="opt-txt">Почти всегда — нет никакого стандарта</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S3 ГДЕ БОЛИТ ══ -->
+  <div class="section" id="s3">
+    <div class="eyebrow"><div class="eyebrow-dot"></div>Блок 03</div>
+    <h1 class="s-title">Главные боли</h1>
+    <p class="s-sub">Сначала выбери что болит — потом расставь по важности. Это покажет что чинить первым.</p>
+
+    <div class="q">
+      <div class="q-label">Что из этого актуально для твоей команды?</div>
+      <div class="q-hint">Выбери всё подходящее</div>
+      <div class="opts" id="pain-opts">
+        <div class="opt chk" onclick="togPain(this)" data-pain="Нет видимости — не знаю статус задач без активного запроса"><div class="dot"></div><div class="opt-txt">Нет видимости — не знаю статус задач без активного запроса</div></div>
+        <div class="opt chk" onclick="togPain(this)" data-pain="Согласования и аппрувы тормозят работу"><div class="dot"></div><div class="opt-txt">Согласования и аппрувы тормозят работу</div></div>
+        <div class="opt chk" onclick="togPain(this)" data-pain="Задачи падают между командами — непонятно кто отвечает"><div class="dot"></div><div class="opt-txt">Задачи падают между командами — непонятно кто отвечает</div></div>
+        <div class="opt chk" onclick="togPain(this)" data-pain="Нет единого способа ставить задачи"><div class="dot"></div><div class="opt-txt">Нет единого способа ставить задачи</div></div>
+        <div class="opt chk" onclick="togPain(this)" data-pain="Команда не знает приоритеты — спрашивает меня постоянно"><div class="dot"></div><div class="opt-txt">Команда не знает приоритеты — спрашивает меня постоянно</div></div>
+        <div class="opt chk" onclick="togPain(this)" data-pain="Нет ритма — планирование хаотичное"><div class="dot"></div><div class="opt-txt">Нет ритма — планирование хаотичное</div></div>
+        <div class="opt chk" onclick="togPain(this)" data-pain="Не могу оценить загрузку команды"><div class="dot"></div><div class="opt-txt">Не могу оценить загрузку команды</div></div>
+        <div class="opt chk" onclick="togPain(this)" data-pain="Повторяющиеся процессы каждый раз начинаются с нуля"><div class="dot"></div><div class="opt-txt">Повторяющиеся процессы каждый раз начинаются с нуля</div></div>
+        <div class="opt chk" onclick="togPain(this)" data-pain="Сложно репортить результаты — данные разбросаны"><div class="dot"></div><div class="opt-txt">Сложно репортить результаты — данные разбросаны</div></div>
+      </div>
+    </div>
+
+    <div class="q" id="rank-block" style="display:none">
+      <div class="q-label">Расставь выбранные проблемы по приоритету</div>
+      <div class="q-hint">Перетащи — наверху то, что мешает больше всего</div>
+      <div class="rank-list" id="rank-list"></div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Опиши ситуацию когда процесс конкретно подвёл команду</div>
+      <div class="q-hint">Механика важнее деталей — что произошло и почему</div>
+      <textarea placeholder="Была задача... случилось... потому что система не..."></textarea>
+    </div>
+  </div>
+
+  <!-- ══ S4 ПРОЦЕССЫ ══ -->
+  <div class="section" id="s4">
+    <div class="eyebrow"><div class="eyebrow-dot"></div>Блок 04</div>
+    <h1 class="s-title">Процессы и передача</h1>
+    <p class="s-sub">Где и как работа тормозит — особенно на стыках между командами.</p>
+
+    <div class="q">
+      <div class="q-label">Как передаются задачи между твоей и другими командами?</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'hand')"><div class="dot"></div><div class="opt-txt">Есть единый бриф / шаблон — все знают формат</div></div>
+        <div class="opt" onclick="sel(this,'hand')"><div class="dot"></div><div class="opt-txt">Задача в Jira с описанием, но формат у всех разный</div></div>
+        <div class="opt" onclick="sel(this,'hand')"><div class="dot"></div><div class="opt-txt">Через Slack / устно — никакого стандарта</div></div>
+        <div class="opt" onclick="sel(this,'hand')"><div class="dot"></div><div class="opt-txt">Каждая команда делает по-своему</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Сколько времени занимает согласование материала или решения?</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'apt')"><div class="dot"></div><div class="opt-txt">До 1 дня</div></div>
+        <div class="opt" onclick="sel(this,'apt')"><div class="dot"></div><div class="opt-txt">1–3 дня</div></div>
+        <div class="opt" onclick="sel(this,'apt')"><div class="dot"></div><div class="opt-txt">3–7 дней</div></div>
+        <div class="opt" onclick="sel(this,'apt')"><div class="dot"></div><div class="opt-txt">Больше недели — это явная проблема</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">С какими командами трения возникают чаще всего — и почему?</div>
+      <textarea placeholder="Больше всего проблем с... потому что..."></textarea>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Есть ли повторяющиеся процессы которые каждый раз начинаются заново без шаблона?</div>
+      <textarea placeholder="Да, например: запуск кампании, онбординг подрядчика..."></textarea>
+    </div>
+  </div>
+
+  <!-- ══ S5 JIRA ══ -->
+  <div class="section" id="s5">
+    <div class="eyebrow"><div class="eyebrow-dot"></div>Блок 05</div>
+    <h1 class="s-title">Jira сейчас и в идеале</h1>
+    <p class="s-sub">Это поможет настроить доски и автоматизации под реальную работу — не шаблонно, а под вас.</p>
+
+    <div class="q">
+      <div class="q-label">Как сейчас используется Jira в команде?</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'jira')"><div class="dot"></div><div class="opt-txt">Не используем</div></div>
+        <div class="opt" onclick="sel(this,'jira')"><div class="dot"></div><div class="opt-txt">Заводим таски — больше ничего</div></div>
+        <div class="opt" onclick="sel(this,'jira')"><div class="dot"></div><div class="opt-txt">Есть борды и статусы, но без автоматизаций</div></div>
+        <div class="opt" onclick="sel(this,'jira')"><div class="dot"></div><div class="opt-txt">Активно — спринты, воркфлоу, репорты</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Что как лид ты хочешь видеть в Jira с первого взгляда?</div>
+      <div class="q-hint">Что должно быть на твоей главной доске без погружения в детали</div>
+      <textarea placeholder="Хочу видеть: что застряло, у кого перегруз, что ждёт меня..."></textarea>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Что должна делать Jira автоматически?</div>
+      <div class="q-hint">Выбери всё нужное</div>
+      <div class="opts">
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Назначать задачи ответственному без моего участия</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Напоминать о дедлайнах и блокерах</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Уведомлять меня когда задача застряла дольше N дней</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Показывать загрузку каждого в команде</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Создавать чеклисты / шаблоны для повторяющихся задач</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Трекать зависимости между командами</div></div>
+
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Слать уведомления в Slack при смене статуса</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Если думать о задачах твоей команды — всё ли покрывается текущими типами задач и статусами в Jira?</div>
+      <div class="q-hint">Например: нет типа "бриф", нет статуса "ждёт подрядчика", нет поля "канал" или "рынок"</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'coverage')"><div class="dot"></div><div class="opt-txt">Да, всего хватает — задачи описываются точно</div></div>
+        <div class="opt" onclick="sel(this,'coverage')"><div class="dot"></div><div class="opt-txt">Частично — чего-то не хватает, приходится костылить</div></div>
+        <div class="opt" onclick="sel(this,'coverage')"><div class="dot"></div><div class="opt-txt">Нет — наши задачи плохо вписываются в текущую структуру</div></div>
+        <div class="opt" onclick="sel(this,'coverage')"><div class="dot"></div><div class="opt-txt">Не знаю — не разбирался что вообще можно настроить</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Каких типов задач, статусов или полей не хватает?</div>
+      <div class="q-hint">Опиши своими словами — не нужно знать как это называется в Jira</div>
+      <textarea placeholder="Например: нет статуса 'на согласовании у клиента', не хватает поля 'рынок', хотел бы отдельный тип для брифов..."></textarea>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Что уже настроено в Jira для твоей команды?</div>
+      <div class="q-hint">Выбери всё что есть прямо сейчас</div>
+      <div class="opts">
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Кастомные статусы / воркфлоу под нашу команду</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Кастомные поля (приоритет, канал, тип контента и т.д.)</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Разные типы задач (Epic, Story, Bug, Task...)</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Автоматизации (хотя бы одна работает)</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Дашборд / репорты</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Интеграция со Slack</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Ничего из этого — только базовые таски</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Какие из этих сценариев были бы полезны твоей команде?</div>
+      <div class="q-hint">Выбери всё что сэкономило бы тебе время или убрало головную боль</div>
+      <div class="opts">
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Создал задачу → она сама назначилась нужному человеку без моего участия</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Задача застряла 3 дня → я получил уведомление в Slack автоматически</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Запускаю новую кампанию → Jira сама создаёт все нужные подзадачи по шаблону</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Открываю доску → сразу вижу у кого перегруз и что блокирует команду</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="opt-txt">Дизайн сделал задачу → смежная команда получила уведомление и взяла в работу без моего пинга</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Каждый в команде видит только свои задачи с чёткими статусами — без лишнего шума</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Задача пришла от другой команды → автоматически попала в наш бэклог с нужными полями</div></div>
+        <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Вижу в одном месте все задачи которые ждут моего решения или аппрува</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Что точно нельзя трогать — работает и не нуждается в изменениях?</div>
+      <textarea placeholder="Вот это не трогать: ..."></textarea>
+    </div>
+  </div>
+
+  <!-- ══ S6 МЕТРИКИ ══ -->
+  <div class="section" id="s6">
+    <div class="eyebrow"><div class="eyebrow-dot"></div>Блок 06</div>
+    <h1 class="s-title">Критерии успеха</h1>
+    <p class="s-sub">Как понять что процессы стали лучше — и что уже пробовали.</p>
+
+    <div class="q">
+      <div class="q-label">Через 3 месяца после внедрения — по чему поймёшь что стало лучше?</div>
+      <div class="q-hint">Конкретно: что изменится в твоей работе или в работе команды</div>
+      <textarea placeholder="Пойму что лучше, если: перестану тратить время на... увижу что... команда сама будет..."></textarea>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Что тебе нужно от Jira в первую очередь?</div>
+      <div class="q-hint">Выбери один вариант который описывает ситуацию точнее всего</div>
+      <div class="opts">
+        <div class="opt" onclick="sel(this,'need')"><div class="dot"></div><div class="opt-txt">Настроить с нуля — сейчас ничего нет или то что есть не работает</div></div>
+        <div class="opt" onclick="sel(this,'need')"><div class="dot"></div><div class="opt-txt">Донастроить — база есть, но не хватает автоматизаций и структуры</div></div>
+        <div class="opt" onclick="sel(this,'need')"><div class="dot"></div><div class="opt-txt">Новые типы задач и поля — процессы есть, нужно расширить под специфику</div></div>
+        <div class="opt" onclick="sel(this,'need')"><div class="dot"></div><div class="opt-txt">Показать возможности — не знаю что Jira умеет, хочу разобраться</div></div>
+        <div class="opt" onclick="sel(this,'need')"><div class="dot"></div><div class="opt-txt">У нас всё ок — нужна только интеграция с другими командами</div></div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Насколько текущие процессы мешают команде работать эффективно?</div>
+      <div class="scale-btns" id="sc1">
+        <button class="sbtn" onclick="scl(this,'sc1')">1</button>
+        <button class="sbtn" onclick="scl(this,'sc1')">2</button>
+        <button class="sbtn" onclick="scl(this,'sc1')">3</button>
+        <button class="sbtn" onclick="scl(this,'sc1')">4</button>
+        <button class="sbtn" onclick="scl(this,'sc1')">5</button>
+      </div>
+      <div class="scale-labels"><span>Почти не мешают</span><span>Критически мешают</span></div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Что уже пробовали улучшить — и почему не взлетело?</div>
+      <textarea placeholder="Пробовали внедрить... не взлетело потому что..."></textarea>
+    </div>
+  </div>
+
+  <!-- ══ S7 ИТОГ ══ -->
+  <div class="section" id="s7">
+    <div class="eyebrow"><div class="eyebrow-dot"></div>Блок 07</div>
+    <h1 class="s-title">Последнее</h1>
+    <p class="s-sub">Свободный финал — здесь можно сказать всё что не попало в вопросы.</p>
+
+    <div class="q">
+      <div class="q-label">Если бы Jira и процессы работали идеально — как выглядел бы твой понедельник?</div>
+      <textarea placeholder="В понедельник утром я открываю... и сразу вижу... мне не нужно..."></textarea>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Одна вещь которую ты бы починил прямо сейчас — что это?</div>
+      <textarea placeholder="Первым делом я бы..."></textarea>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Что ещё важно учесть — что не попало в вопросы?</div>
+      <textarea placeholder="Хочу добавить что..."></textarea>
+    </div>
+
+    <div style="padding:18px 20px;background:rgba(123,110,246,0.08);border:1px solid rgba(123,110,246,0.25);border-radius:14px;margin-top:8px;">
+      <div style="font-size:13px;font-weight:500;color:#A78BFA;margin-bottom:10px;">Не хочешь ждать — приходи напрямую</div>
+      <p style="font-size:14px;color:#C8C4BC;line-height:1.8;font-weight:300;">
+        Опрос — это один из способов. Если есть конкретный запрос или боль — не нужно никаких формальностей:<br>
+        <span style="color:#A78BFA;">💬</span> Напиши <b style="color:#A78BFA;">@Viktor Smirnov</b> в Slack — отвечу быстро<br>
+        <span style="color:#A78BFA;">📅</span> Хочешь встретиться — тоже напиши в Slack, договоримся
+      </p>
+    </div>
+  </div>
+
+  <!-- DONE -->
+  <div class="done-screen" id="done">
+    <div class="done-ring" style="background:var(--cad);border:1px solid var(--cab);box-shadow:0 0 50px var(--cad);">
+      <svg viewBox="0 0 34 34" fill="none">
+        <path d="M6 17L14 25L28 9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--ca)"/>
+      </svg>
+    </div>
+    <h1 class="done-title">Спасибо</h1>
+    <p class="done-sub">Ответы получены — разберу их и вернусь с конкретными предложениями под твою команду.</p>
+    <div style="margin-top:28px;padding:18px 20px;background:rgba(123,110,246,0.08);border:1px solid rgba(123,110,246,0.25);border-radius:14px;text-align:left;">
+      <div style="font-size:13px;font-weight:500;color:#A78BFA;margin-bottom:10px;">Не ждать — написать напрямую</div>
+      <p style="font-size:14px;color:#C8C4BC;line-height:1.8;font-weight:300;margin:0;">
+        <span style="color:#A78BFA;">💬</span> Напиши <b style="color:#A78BFA;">@Viktor Smirnov</b> в Slack — отвечу быстро<br>
+        <span style="color:#A78BFA;">📅</span> Хочешь встретиться — тоже пиши <b style="color:#A78BFA;">@Viktor Smirnov</b>, договоримся
+      </p>
+    </div>
+  </div>
+
+  <div class="nav" id="nav">
+    <button class="btn-back" id="bbk" onclick="go(-1)" disabled>← Назад</button>
+    <button class="btn-next" id="bfwd" onclick="go(1)">Далее →</button>
+  </div>
+
+</div>
+<script>
+// block accent colors per section
+const BLOCK_COLORS = {
+  1:['#7B6EF6','rgba(123,110,246,0.15)','rgba(123,110,246,0.38)'],
+  2:['#F97316','rgba(249,115,22,0.14)','rgba(249,115,22,0.38)'],
+  3:['#EC4899','rgba(236,72,153,0.14)','rgba(236,72,153,0.38)'],
+  4:['#10B981','rgba(16,185,129,0.13)','rgba(16,185,129,0.38)'],
+  5:['#F59E0B','rgba(245,158,11,0.13)','rgba(245,158,11,0.38)'],
+  6:['#06B6D4','rgba(6,182,212,0.13)','rgba(6,182,212,0.38)'],
+  7:['#A855F7','rgba(168,85,247,0.14)','rgba(168,85,247,0.38)'],
+};
+
+const SHEET_URL = 'https://script.google.com/a/macros/po.trade/s/AKfycbwVRkU0ZaLY9g5KPBWpdlwiPGCJEvJF91RaE8Q00mUWGscAGITLqSm56cs5tgow90DaIQ/exec';
+let cur=1,tot=7,customActive=false,selectedPains=[];
+
+function collectAnswers(){
+  const teamEl=document.querySelector('.tc.sel .tc-name');
+  const team=teamEl?teamEl.textContent:(document.querySelector('#ci-wrap input')?.value||'');
+
+  function getSelText(sId){
+    return Array.from(document.querySelectorAll('#'+sId+' .opt:not(.chk).sel .opt-txt')).map(o=>o.textContent.trim());
+  }
+  function getCheckedText(sId){
+    return Array.from(document.querySelectorAll('#'+sId+' .opt.chk.sel .opt-txt')).map(o=>o.textContent.trim()).join('; ');
+  }
+  function getTA(idx){
+    const a=document.querySelectorAll('textarea');
+    return a[idx]?a[idx].value.trim():'';
+  }
+  function getScale(id){
+    const b=document.querySelector('#'+id+' .sbtn.sel');
+    return b?b.textContent.trim():'';
+  }
+
+  const s1sel=getSelText('s1');
+  const s2sel=getSelText('s2');
+  const s4sel=getSelText('s4');
+  const s5sel=getSelText('s5');
+
+  return {
+    team,
+    teamSize:       s1sel[0]||'',
+    managerTime:    s1sel[1]||'',
+    taskSources:    getCheckedText('s2'),
+    visibility:     s2sel[0]||'',
+    priorities:     s2sel[1]||'',
+    taskDrop:       s2sel[2]||'',
+    topPains:       selectedPains.join(' → '),
+    painExample:    getTA(0),
+    handoff:        s4sel[0]||'',
+    approvalTime:   s4sel[1]||'',
+    frictions:      getTA(1),
+    repeatingProcesses: getTA(2),
+    jiraUsage:      s5sel[0]||'',
+    idealBoard:     getTA(3),
+    automations:    getCheckedText('s5'),
+    doNotTouch:     getTA(4),
+    successCriteria:getTA(5),
+    painScore:      getScale('sc1'),
+    failedAttempts: getTA(6),
+    idealMonday:    getTA(7),
+    fixFirst:       getTA(8),
+    extra:          getTA(9),
+  };
+}
+
+function applyColors(n){
+  const [ca,cad,cab]=BLOCK_COLORS[n];
+  const r=document.documentElement.style;
+  r.setProperty('--ca',ca);
+  r.setProperty('--cad',cad);
+  r.setProperty('--cab',cab);
+  const pf=document.getElementById('pfill');
+  pf.style.background=ca;
+  pf.style.color=ca;
+  // eyebrow dot
+  document.querySelectorAll('.eyebrow-dot').forEach(d=>d.style.background=ca);
+  // topbar pill
+  document.querySelector('.topbar-pill b').style.color=ca;
+  // btn-next
+  document.getElementById('bfwd').style.background=ca;
+}
+
+function upd(){
+  const pct=Math.round((cur/tot)*100);
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('cur-num').textContent=String(cur).padStart(2,'0');
+  document.getElementById('bbk').disabled=cur===1;
+  document.getElementById('bfwd').textContent=cur===tot?'Готово':'Далее →';
+  applyColors(cur);
+}
+
+function go(d){
+  const nx=cur+d;
+  if(nx>tot){finish();return;}
+  if(nx<1)return;
+  document.getElementById('s'+cur).classList.remove('active');
+  cur=nx;
+  document.getElementById('s'+cur).classList.add('active');
+  upd();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function finish(){
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('done').style.display='block';
+  document.getElementById('nav').style.display='none';
+  document.getElementById('pfill').style.width='100%';
+  document.getElementById('cur-num').textContent='✓';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  // send to Google Sheets
+  const answers = collectAnswers();
+  const formData = new FormData();
+  formData.append('data', JSON.stringify(answers));
+
+  // no-cors to bypass CORS restriction from local file
+  fetch(SHEET_URL, {
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify(answers)
+  })
+  .then(()=>console.log('Sent to Sheets'))
+  .catch(e=>console.warn('Sheets error', e));
+
+  // fallback via image ping with encoded data (for extra reliability)
+  const img = new Image();
+  img.src = SHEET_URL + '?data=' + encodeURIComponent(JSON.stringify(answers));
+}
+
+function sel(el,nm){
+  el.closest('.opts').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function tog(el){el.classList.toggle('sel');}
+function scl(el,gid){
+  document.getElementById(gid).querySelectorAll('.sbtn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function pickTeam(el,team){
+  document.querySelectorAll('.tc').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('mb-extra').classList.toggle('show',team==='Mediabuying');
+  document.getElementById('ct').classList.remove('sel');
+  document.getElementById('ci-wrap').classList.remove('show');
+  customActive=false;
+}
+function toggleCustom(){
+  customActive=!customActive;
+  document.getElementById('ct').classList.toggle('sel',customActive);
+  document.getElementById('ci-wrap').classList.toggle('show',customActive);
+  if(customActive){
+    document.querySelectorAll('.tc').forEach(b=>b.classList.remove('sel'));
+    document.getElementById('mb-extra').classList.remove('show');
+    document.querySelector('#ci-wrap input').focus();
+  }
+}
+function onCI(){
+  const v=document.querySelector('#ci-wrap input').value.trim();
+  document.getElementById('ct').classList.toggle('sel',v.length>0);
+}
+
+// pain ranking
+function togPain(el){
+  el.classList.toggle('sel');
+  const pain=el.dataset.pain;
+  if(el.classList.contains('sel')){if(!selectedPains.includes(pain))selectedPains.push(pain);}
+  else{selectedPains=selectedPains.filter(p=>p!==pain);}
+  renderRank();
+}
+function renderRank(){
+  const block=document.getElementById('rank-block');
+  const list=document.getElementById('rank-list');
+  if(selectedPains.length<2){block.style.display='none';return;}
+  block.style.display='block';
+  list.innerHTML='';
+  selectedPains.forEach((pain,i)=>{
+    const item=document.createElement('div');
+    item.className='rank-item';item.draggable=true;
+    item.dataset.pos=i+1;item.dataset.pain=pain;
+    item.innerHTML=`<div class="rank-num">${i+1}</div><div class="rank-txt">${pain}</div><div class="rank-handle">⠿</div>`;
+    item.addEventListener('dragstart',function(){dragSrc=this;this.classList.add('dragging');});
+    item.addEventListener('dragover',function(e){e.preventDefault();document.querySelectorAll('.rank-item').forEach(i=>i.classList.remove('drag-over'));this.classList.add('drag-over');});
+    item.addEventListener('drop',function(e){
+      e.preventDefault();if(dragSrc===this)return;
+      const fi=selectedPains.indexOf(dragSrc.dataset.pain);
+      const ti=selectedPains.indexOf(this.dataset.pain);
+      selectedPains.splice(fi,1);selectedPains.splice(ti,0,dragSrc.dataset.pain);
+      renderRank();
+    });
+    item.addEventListener('dragend',function(){document.querySelectorAll('.rank-item').forEach(i=>{i.classList.remove('dragging');i.classList.remove('drag-over');});});
+    list.appendChild(item);
+  });
+}
+let dragSrc=null;
+
+// init
+applyColors(1);
+</script>
+</body>
+</html>
