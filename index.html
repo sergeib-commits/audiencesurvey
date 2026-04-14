@@ -519,7 +519,7 @@ textarea:focus,input:focus{border-color:var(--cab);box-shadow:0 0 0 3px var(--ca
         <div class="opt chk" onclick="tog(this)"><div class="dot"></div><div class="opt-txt">Закрыл задачу → смежная команда получила уведомление автоматически</div></div>
       </div>
       <div style="margin-top:8px;">
-        <input type="text" placeholder="Свой сценарий — опиши своими словами...">
+        <input type="text" id="custom-scenario" placeholder="Свой сценарий — опиши своими словами...">
       </div>
     </div>
 
@@ -693,6 +693,7 @@ function collectAnswers(){
     idealBoard:         getTA(4),
     automations:        automations,
     scenarios:          scenarios,
+    customScenario:     document.getElementById('custom-scenario')?.value.trim()||'',
     doNotTouch:         getTA(5),
     jiraNeed:           s6sel[0]||'',
     successCriteria:    getTA(6),
